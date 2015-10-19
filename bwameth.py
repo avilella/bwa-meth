@@ -244,7 +244,7 @@ def rname(fq1, fq2=""):
 
 
 def bwa_mem(fa, mfq, extra_args, prefix='bwa-meth', threads=1, rg=None,
-            calmd=False, paired=True, set_as_failed=None):
+            calmd=False, paired=True, set_as_failed=None, minscore=None, mismatchpenalty=None, clippingpenalty=None):
     conv_fa = convert_fasta(fa, just_name=True)
     if not is_newer_b(conv_fa, (conv_fa + '.amb', conv_fa + '.sa')):
         raise BWAMethException("first run bwameth.py index %s" % fa)
@@ -253,7 +253,7 @@ def bwa_mem(fa, mfq, extra_args, prefix='bwa-meth', threads=1, rg=None,
         rg = '@RG\tID:{rg}\tSM:{rg}'.format(rg=rg)
 
     # penalize clipping and unpaired. lower penalty on mismatches (-B)
-    cmd = "|bwa mem -T 40 -B 2 -L 10 -CM "
+    cmd = "|bwa mem -T %s -B %s -L %s -CM " % (minscore,mismatchpenalty,clippingpenalty)
 
     if paired:
         cmd += ("-U 100 -p ")
@@ -573,6 +573,12 @@ def main(args=sys.argv[1:]):
     p.add_argument("-t", "--threads", type=int, default=6)
     p.add_argument("-p", "--prefix", default="bwa-meth")
     p.add_argument("--calmd", default=False, action="store_true")
+    p.add_argument("--minscore", help="bwa mem -- minimum score to output",
+                        default="40")
+    p.add_argument("--mismatchpenalty", help="bwa mem -- penalty for a mismatch",
+                        default="2")
+    p.add_argument("--clippingpenalty", help="bwa mem -- penalty for 5'- and 3'-end clipping",
+                        default="10,0")
     p.add_argument("--read-group", help="read-group to add to bam in same"
             " format as to bwa: '@RG\\tID:foo\\tSM:bar'")
     p.add_argument('--set-as-failed', help="flag alignments to this strand"
@@ -595,7 +601,7 @@ def main(args=sys.argv[1:]):
              threads=args.threads, rg=args.read_group or
              rname(*args.fastqs), calmd=args.calmd,
              paired=len(args.fastqs) == 2,
-             set_as_failed=args.set_as_failed)
+             set_as_failed=args.set_as_failed, minscore=args.minscore)
 
 
 def test():
