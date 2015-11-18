@@ -9,7 +9,7 @@ def faseq(fa, chrom, start, end, cache=[None]):
     """
     if cache[0] is None or cache[0][0] != chrom:
         cache[0] = (chrom, "".join(x.strip() for i, x in
-            enumerate(nopen("|samtools faidx %s %s" % (fa, chrom))) if i >
+            enumerate(nopen("|samtools faidx %s \'%s\'" % (fa, chrom))) if i >
             0).upper())
     chrom, seq = cache[0]
     #return seq[start - 1: end]
