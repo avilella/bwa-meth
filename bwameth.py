@@ -271,7 +271,8 @@ def as_bam(pfile, fa, prefix, calmd=False, set_as_failed=None):
     set_as_failed: None, 'f', or 'r'. If 'f'. Reads mapping to that strand
                       are given the sam flag of a failed QC alignment (0x200).
     """
-    view = "samtools view -bS - | samtools sort -m 2415919104 - "
+    # view = "samtools view -bS - | samtools sort -m 2415919104 - "
+    view = "samtools view -bS - | samtools sort - "
     if calmd:
         cmds = [
             view + "{bam}.tmp",
@@ -601,7 +602,7 @@ def main(args=sys.argv[1:]):
              threads=args.threads, rg=args.read_group or
              rname(*args.fastqs), calmd=args.calmd,
              paired=len(args.fastqs) == 2,
-             set_as_failed=args.set_as_failed, minscore=args.minscore)
+             set_as_failed=args.set_as_failed, minscore=args.minscore, mismatchpenalty=args.mismatchpenalty, clippingpenalty=args.clippingpenalty)
 
 
 def test():
